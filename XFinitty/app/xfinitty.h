@@ -30,7 +30,7 @@ typedef enum{
 
 typedef struct{
     test_state_t test_state;
-    processint_step_t processing_step;
+    processing_step_t processing_step;
     step_result_t step_one;
     step_result_t step_two;
     step_result_t step_three;

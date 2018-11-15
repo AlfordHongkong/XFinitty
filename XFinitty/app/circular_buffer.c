@@ -10,7 +10,7 @@
  */
 
 
-#include "ringBuffer.h"
+#include "circular_buffer.h"
 
 
 
@@ -32,17 +32,17 @@ uint8_t GetLengthOfCircularBuf(circularBuffer_t *cb){
     return ((cb->write - cb->read) & (cb->size -1));
 }
 
-circular_buf_error_t ReadCircularBuf(circularBuffer_t *cb, uint8_t data){
-    if (GetLengthOfCircularBuf(cb) == (cb->size-1)) { return error_buffer_full}
-    cb->buf[cb-write] = data;
-    cb->write = (cb-write + 1) & (cb->size -1); // must be atomic
+circular_buf_error_t WriteCircularBuf(circularBuffer_t *cb, uint8_t data){
+    if (GetLengthOfCircularBuf(cb) == (cb->size-1)) { return error_buffer_full;}
+    cb->buf[cb->write] = data;
+    cb->write = (cb->write + 1) & (cb->size -1); // must be atomic
 
     return no_error;
 }
-circular_buf_error_t WriteCircularBuf(circularBuffer_t *cb, uint8_t *data){
+circular_buf_error_t ReadCircularBuf(circularBuffer_t *cb, uint8_t *data){
     if (GetLengthOfCircularBuf(cb) == 0) { return error_buffer_empty;}
     *data = cb->buf[cb->read];
-    cb->read = (cb-read +1) & (cb->size - 1);
+    cb->read = (cb->read +1) & (cb->size - 1);
 
     return no_error;
 }

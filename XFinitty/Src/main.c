@@ -420,6 +420,7 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN 5 */
+	printf("System start.\n");
   /* Infinite loop */
   for(;;)
   {
