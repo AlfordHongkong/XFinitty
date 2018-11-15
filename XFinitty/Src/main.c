@@ -52,7 +52,9 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "ut61c.h"
+#include "xfinitty.h"
+#include "bsp.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -65,6 +67,7 @@ UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
 osThreadId defaultTaskHandle;
+osTimerId LedFlashingHandle;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -80,6 +83,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 void StartDefaultTask(void const * argument);
+void LedFlashingCallbac(void const * argument);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -135,6 +139,11 @@ int main(void)
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
+
+  /* Create the timer(s) */
+  /* definition and creation of LedFlashing */
+  osTimerDef(LedFlashing, LedFlashingCallbac);
+  LedFlashingHandle = osTimerCreate(osTimer(LedFlashing), osTimerPeriodic, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -306,7 +315,7 @@ static void MX_USART2_UART_Init(void)
 {
 
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 2400;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -325,7 +334,7 @@ static void MX_USART3_UART_Init(void)
 {
 
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 115200;
+  huart3.Init.BaudRate = 2400;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;
@@ -420,13 +429,49 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN 5 */
+  led_t *led_board1;
+  led_board1 = GetBoard1Led();
+  uint8_t temp2, temp3;
+	InitUT61C();
+  InitLeds();
 	printf("System start.\n");
+  HAL_UART_Receive_IT(&huart2, &temp2, 1);
+  HAL_UART_Receive_IT(&huart3, &temp3, 1);
+
+  TurnOnLed(BOARD_1_LED_R);
+  TurnOnLed(BORAD_1_LED_B);
+  
+  // TurnOnled(BOARD_2_LED_B);
+  // TurnOnled(BOARD_2_LED_R);
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+//    HAL_UART_Receive_IT();
+    
+    SetLedState(led_board1, flash);
+    SetLedColor(led_board1, red);
+    osDelay(1000);
+    SetLedColor(led_board1, green);
+    osDelay(1000);
+    SetLedColor(led_board1, orange);
+    osDelay(1000);
+    SetLedState(led_board1, off);
+    osDelay(1000);
+    SetLedState(led_board1, on);
+    osDelay(1000);
+    SetLedColor(led_board1, green);
+    osDelay(1000);
+    SetLedColor(led_board1, red);
   }
   /* USER CODE END 5 */ 
+}
+
+/* LedFlashingCallbac function */
+void LedFlashingCallbac(void const * argument)
+{
+  /* USER CODE BEGIN LedFlashingCallbac */
+  CallbackForLedFlashing();
+  /* USER CODE END LedFlashingCallbac */
 }
 
 /**

@@ -1,11 +1,127 @@
 
 
 
-
-
 #include "xfinitty.h"
+#include "cmsis_os.h"
+#include "bsp.h"
+#include "main.h"
 
 
+extern osTimerId LedFlashingHandle;
+
+
+led_t led_board_1;
+void TurnOnBoard1Led(void);
+
+
+void InitLeds(void){
+    led_board_1.color = orange;
+    led_board_1.state = on;
+    TurnOnBoard1Led();
+}
+
+void TurnOnBoard1Led(void){
+    switch (led_board_1.color){
+        case orange:
+            TurnOnLed(BOARD_1_LED_R);
+            TurnOnLed(BORAD_1_LED_B);
+        break;
+        case red:
+            TurnOnLed(BOARD_1_LED_R);
+        break;
+        case green:
+            TurnOnLed(BORAD_1_LED_B);
+        break;
+
+        default:
+        break;
+    }
+
+}
+
+void TurnOffBoard1Led(void){
+    
+    TurnOffLed(BOARD_1_LED_R);
+    TurnOffLed(BORAD_1_LED_B);
+}
+
+void StartFlashing(led_t *led){
+    osTimerStart(LedFlashingHandle, 100);
+}
+
+void StopFlashing(led_t *led){
+    osTimerStop(LedFlashingHandle);
+}
+
+void CallbackForLedFlashing(void){
+    uint8_t i = 0;
+    if(i++ & 0x01 == 0){
+        TurnOnBoard1Led();
+    }
+    else {
+        TurnOffBoard1Led();
+    }
+}
+
+uint8_t SetLedColor(led_t *led, led_color_t color){
+    if (led->state == off)
+        return 0;
+
+    led->color = color;
+    if (led->state == on)
+        TurnOnBoard1Led();
+    return 0;
+}
+
+uint8_t SetLedState(led_t *led, led_state_t state){
+    if (state != led->state){
+        if (led->state == on){
+            if (state == off){
+                TurnOffBoard1Led();
+            }
+            else if (state == flash){
+                StartFlashing(&led_board_1);
+            }
+            else{
+                return 1;
+            }
+        }
+        else if (led->state == off){
+            if (state == on){
+                TurnOnBoard1Led();
+            }
+            else if (state == flash){
+                StartFlashing(&led_board_1);
+            }
+            else {
+                return 1;
+            }
+        }
+        else if (led->state == flash){
+            if (state == on){
+                StopFlashing(&led_board_1);
+                TurnOnBoard1Led();
+            }
+            else if (state == off){
+                StopFlashing(&led_board_1);
+                TurnOffBoard1Led();
+            }
+            else {
+                return 1;
+            }
+        }
+        else {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+
+led_t *GetBoard1Led(void){
+    return &led_board_1;
+}
 
 uint8_t PressS1(void){
 

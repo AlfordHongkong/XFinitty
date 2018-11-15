@@ -11,17 +11,15 @@
 
 
 #include "circular_buffer.h"
+#include "string.h"
 
 
-
-uint8_t InitCircularBuf(circularBuffer_t *cb, uint8_t *buf){
+uint8_t InitCircularBuf(circularBuffer_t *cb, uint8_t buf[], uint8_t buf_size){
     /// assert two arguments
-    uint8_t size;
-    size = sizeof(buf);
-    if ( (!size || (size & (size - 1))) != 0) { return 1;} ///< size is not a power of tow
+    if ( (!buf_size || (buf_size & (buf_size - 1))) != 0) { return 1;} ///< size is not a power of tow
 
     cb->buf = buf;
-    cb->size = size;
+    cb->size = buf_size;
     cb->read = 0;
     cb->write = 0;
 

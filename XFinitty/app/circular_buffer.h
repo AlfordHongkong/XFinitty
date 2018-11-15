@@ -44,7 +44,7 @@ typedef enum{
  * @param buf - pointer of the buffer
  * @return uint8_t - 1 means error, 0 means success
  */
-uint8_t InitCircularBuf(circularBuffer_t *cb, uint8_t *buf);
+uint8_t InitCircularBuf(circularBuffer_t *cb, uint8_t buf[], uint8_t buf_size);
 
 /**
  * @brief Get the Length Of Circular Buf object

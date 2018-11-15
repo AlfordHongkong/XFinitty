@@ -8,6 +8,7 @@
 #include "stdint.h"
 
 typedef enum{
+    test_wait,
     test_started,
     test_end,
 }test_state_t;
@@ -42,12 +43,31 @@ typedef struct{
 }xfinitty_t;
 
 
+typedef enum{
+    orange,
+    red,
+    green,
+}led_color_t;
 
+typedef enum{
+    off,
+    on,
+    flash,
+}led_state_t;
 
+typedef struct{
+    led_color_t color;
+    led_state_t state;
+}led_t;
 
+void InitLeds(void);
+void CallbackForLedFlashing(void);
 
+uint8_t SetLedColor(led_t *led, led_color_t color);
 
+uint8_t SetLedState(led_t *led, led_state_t state);
 
+led_t *GetBoard1Led(void);
 
 
 
