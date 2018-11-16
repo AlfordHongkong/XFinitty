@@ -187,7 +187,7 @@ void TestLeds(void){
 }
 
 uint8_t PressS1(void){
-    ActRelay(2);
+    ActRelay(1);
     if (osTimerStart(S1DelayHandle, 1200) == osOK)
         return 0;
 
@@ -322,16 +322,15 @@ uint8_t SetpEightEnd(void){
 
 
 void TestSequence(void){
-    ChangeResistance(resistance_10k);
-    ChangePower(power_4v1);
+
 
     /// step 1: s3 == off
     PressS1();
-    osDelay(3000);
+    osDelay(5000);
 
     /// step 2: s3 == on --> led1 on; led2 on
     PressS1();
-    osDelay(3000);
+    osDelay(5000);
 
     /// step 3: res == 2.7k --> led 2 from on to off; led 1 flash 6times and off
     ChangeResistance(resistance_2k7);
@@ -341,20 +340,27 @@ void TestSequence(void){
 
     /// step 4: stanby current test
     ChangeMeter(ua_meter);
-    osDelay(3000);
+    osDelay(5000);
+    ChangeMeter(ma_meter);
 
     /// step 5: bow battery --> led1 flash 3 tiems then off.
     ChangePower(power_3v3);
+    osDelay(2000);
     PressS1();
-    osDelay(3000);
+    osDelay(5000);
 
     /// step 6: charging --> led1 breathing state
-    ChangeMeter(power_3v06);
+    ChangePower(power_3v06);
     osDelay(5000);
 
     /// step 7: high temp with charging --> led flahes rapidly 6times/s
     ChangeResistance(resistance_3k85);
-
+    osDelay(5000);
     /// step 8: done
 
+
+    /// reset
+    ChangeResistance(resistance_10k);
+    ChangePower(power_4v1);
+    ChangeMeter(ma_meter);
 }

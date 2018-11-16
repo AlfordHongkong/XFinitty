@@ -4,6 +4,8 @@
 
 
 #include "bsp.h"
+#include "cmsis_os.h"
+
 //#include <stdlib.h>
 
 
@@ -109,6 +111,43 @@ uint8_t ChangeMeter(which_meter_t meter){
 }
 
  void TestRelay(void){
+     ActRelay(1);
+     osDelay(100);
+     ActRelay(2);
+     osDelay(100);
+     ActRelay(3);
+     osDelay(100);
+     ActRelay(4);
+     osDelay(100);
+     ActRelay(5);
+     osDelay(100);
+     ActRelay(6);
+     osDelay(100);
+     ActRelay(7);
+     osDelay(100);
+     ActRelay(8);
+     osDelay(100);
+     ActRelay(9);
+     osDelay(100);
+
+     ReleaseRelay(1);
+     osDelay(100);
+     ReleaseRelay(2);
+     osDelay(100);
+     ReleaseRelay(3);
+     osDelay(100);
+     ReleaseRelay(4);
+     osDelay(100);
+     ReleaseRelay(5);
+     osDelay(100);
+     ReleaseRelay(6);
+     osDelay(100);
+     ReleaseRelay(7);
+     osDelay(100);
+     ReleaseRelay(8);
+     osDelay(100);
+     ReleaseRelay(9);
+     osDelay(100);
 
  }
 

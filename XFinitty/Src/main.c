@@ -501,10 +501,12 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+    // TestRelay();
 //    HAL_UART_Receive_IT();
-    //PressS1();
-    TestLeds();
-    // osDelay(2000);
+    // PressS1();
+//    TestLeds();
+	  TestSequence();
+    //  osDelay(2000);
   }
   /* USER CODE END 5 */ 
 }

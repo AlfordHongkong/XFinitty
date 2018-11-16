@@ -72,7 +72,7 @@ led_t *GetBoard1Led(void);
 void TestLeds(void);
 
 uint8_t PressS1(void);
-#define S1DelayCallback4User() ReleaseRelay(2)
+#define S1DelayCallback4User() ReleaseRelay(1)
 
 void TestSequence(void);
 
