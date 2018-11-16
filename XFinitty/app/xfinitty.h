@@ -69,7 +69,12 @@ uint8_t SetLedState(led_t *led, led_state_t state);
 
 led_t *GetBoard1Led(void);
 
+void TestLeds(void);
 
+uint8_t PressS1(void);
+#define S1DelayCallback4User() ReleaseRelay(2)
+
+void TestSequence(void);
 
 #endif
 

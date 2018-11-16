@@ -68,6 +68,7 @@ UART_HandleTypeDef huart3;
 
 osThreadId defaultTaskHandle;
 osTimerId LedFlashingHandle;
+osTimerId S1DelayHandle;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -84,6 +85,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 void StartDefaultTask(void const * argument);
 void LedFlashingCallbac(void const * argument);
+void S1DelayCallback(void const * argument);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -144,6 +146,10 @@ int main(void)
   /* definition and creation of LedFlashing */
   osTimerDef(LedFlashing, LedFlashingCallbac);
   LedFlashingHandle = osTimerCreate(osTimer(LedFlashing), osTimerPeriodic, NULL);
+
+  /* definition and creation of S1Delay */
+  osTimerDef(S1Delay, S1DelayCallback);
+  S1DelayHandle = osTimerCreate(osTimer(S1Delay), osTimerOnce, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -383,14 +389,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : BOARD_1_LED_R_Pin BORAD_1_LED_B_Pin BOARD_2_LED_R_Pin BOARD_2_LED_B_Pin 
-                           RELAY_6_Pin RELAY_7_Pin RELAY_5_Pin RELAY_4_Pin 
-                           RELAY_3_Pin RELAY_2_Pin */
-  GPIO_InitStruct.Pin = BOARD_1_LED_R_Pin|BORAD_1_LED_B_Pin|BOARD_2_LED_R_Pin|BOARD_2_LED_B_Pin 
-                          |RELAY_6_Pin|RELAY_7_Pin|RELAY_5_Pin|RELAY_4_Pin 
-                          |RELAY_3_Pin|RELAY_2_Pin;
+  /*Configure GPIO pins : BOARD_1_LED_R_Pin BORAD_1_LED_B_Pin BOARD_2_LED_R_Pin BOARD_2_LED_B_Pin */
+  GPIO_InitStruct.Pin = BOARD_1_LED_R_Pin|BORAD_1_LED_B_Pin|BOARD_2_LED_R_Pin|BOARD_2_LED_B_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
@@ -400,6 +402,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : RELAY_6_Pin RELAY_7_Pin RELAY_5_Pin RELAY_4_Pin 
+                           RELAY_3_Pin RELAY_2_Pin */
+  GPIO_InitStruct.Pin = RELAY_6_Pin|RELAY_7_Pin|RELAY_5_Pin|RELAY_4_Pin 
+                          |RELAY_3_Pin|RELAY_2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : RELAY_8_Pin RELAY_9_Pin */
   GPIO_InitStruct.Pin = RELAY_8_Pin|RELAY_9_Pin;
@@ -447,21 +458,9 @@ void StartDefaultTask(void const * argument)
   for(;;)
   {
 //    HAL_UART_Receive_IT();
-    
-    SetLedState(led_board1, flash);
-    SetLedColor(led_board1, red);
-    osDelay(1000);
-    SetLedColor(led_board1, green);
-    osDelay(1000);
-    SetLedColor(led_board1, orange);
-    osDelay(1000);
-    SetLedState(led_board1, off);
-    osDelay(1000);
-    SetLedState(led_board1, on);
-    osDelay(1000);
-    SetLedColor(led_board1, green);
-    osDelay(1000);
-    SetLedColor(led_board1, red);
+    //PressS1();
+    TestLeds();
+    osDelay(2000);
   }
   /* USER CODE END 5 */ 
 }
@@ -472,6 +471,14 @@ void LedFlashingCallbac(void const * argument)
   /* USER CODE BEGIN LedFlashingCallbac */
   CallbackForLedFlashing();
   /* USER CODE END LedFlashingCallbac */
+}
+
+/* S1DelayCallback function */
+void S1DelayCallback(void const * argument)
+{
+  /* USER CODE BEGIN S1DelayCallback */
+  S1DelayCallback4User();
+  /* USER CODE END S1DelayCallback */
 }
 
 /**
