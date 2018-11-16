@@ -46,8 +46,8 @@ typedef enum{
 #define ActRelay(relay_x) HAL_GPIO_WritePin(RELAY_##relay_x##_GPIO_Port, RELAY_##relay_x##_Pin, GPIO_PIN_RESET)
 #define ReleaseRelay(relay_x) HAL_GPIO_WritePin(RELAY_##relay_x##_GPIO_Port, RELAY_##relay_x##_Pin, GPIO_PIN_SET)
 
-#define TurnOnLed(led_x) HAL_GPIO_WritePin(led_x##_GPIO_Port, led_x##_Pin, GPIO_PIN_SET)
-#define TurnOffLed(led_x) HAL_GPIO_WritePin(led_x##_GPIO_Port, led_x##_Pin, GPIO_PIN_RESET)
+#define TurnOnLed(led_x) HAL_GPIO_WritePin(led_x##_GPIO_Port, led_x##_Pin, GPIO_PIN_RESET)
+#define TurnOffLed(led_x) HAL_GPIO_WritePin(led_x##_GPIO_Port, led_x##_Pin, GPIO_PIN_SET)
 
 
 uint8_t ChangeResistance(which_resistance_t which_resistance);

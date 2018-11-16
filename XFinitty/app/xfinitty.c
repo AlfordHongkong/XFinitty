@@ -21,6 +21,7 @@ void InitLeds(void){
     TurnOnBoard1Led();
 }
 
+
 void TurnOnBoard1Led(void){
     switch (led_board_1.color){
         case orange:
@@ -29,21 +30,54 @@ void TurnOnBoard1Led(void){
         break;
         case red:
             TurnOnLed(BOARD_1_LED_R);
+            TurnOffLed(BORAD_1_LED_B);
         break;
         case green:
             TurnOnLed(BORAD_1_LED_B);
+            TurnOffLed(BOARD_1_LED_R);
         break;
 
         default:
         break;
     }
-
+    led_board_1.state = on;
 }
 
 void TurnOffBoard1Led(void){
     
     TurnOffLed(BOARD_1_LED_R);
     TurnOffLed(BORAD_1_LED_B);
+
+    led_board_1.state = off;
+}
+
+void FlashToOff(led_t *led){
+    if (led == &led_board_1){
+        TurnOffLed(BOARD_1_LED_R);
+        TurnOffLed(BORAD_1_LED_B);
+    }
+}
+
+void FlashToOn(led_t *led){
+    if (led == &led_board_1){
+        switch (led_board_1.color){
+            case orange:
+                TurnOnLed(BOARD_1_LED_R);
+                TurnOnLed(BORAD_1_LED_B);
+            break;
+            case red:
+                TurnOnLed(BOARD_1_LED_R);
+                TurnOffLed(BORAD_1_LED_B);
+            break;
+            case green:
+                TurnOnLed(BORAD_1_LED_B);
+                TurnOffLed(BOARD_1_LED_R);
+            break;
+
+            default:
+            break;
+        }
+    }
 }
 
 void StartFlashing(led_t *led){
@@ -55,12 +89,12 @@ void StopFlashing(led_t *led){
 }
 
 void CallbackForLedFlashing(void){
-    uint8_t i = 0;
+    static uint8_t i = 0;
     if((i++ & 0x01) == 0){
-        TurnOnBoard1Led();
+        FlashToOn(&led_board_1);
     }
     else {
-        TurnOffBoard1Led();
+        FlashToOff(&led_board_1);
     }
 }
 
@@ -79,9 +113,11 @@ uint8_t SetLedState(led_t *led, led_state_t state){
         if (led->state == on){
             if (state == off){
                 TurnOffBoard1Led();
+                led->state = off;
             }
             else if (state == flash){
                 StartFlashing(&led_board_1);
+                led->state = flash;
             }
             else{
                 return 1;
@@ -90,9 +126,11 @@ uint8_t SetLedState(led_t *led, led_state_t state){
         else if (led->state == off){
             if (state == on){
                 TurnOnBoard1Led();
+                led->state = on;
             }
             else if (state == flash){
                 StartFlashing(&led_board_1);
+                led->state = flash;
             }
             else {
                 return 1;
@@ -102,10 +140,12 @@ uint8_t SetLedState(led_t *led, led_state_t state){
             if (state == on){
                 StopFlashing(&led_board_1);
                 TurnOnBoard1Led();
+                led->state = on;
             }
             else if (state == off){
                 StopFlashing(&led_board_1);
                 TurnOffBoard1Led();
+                led->state = off;
             }
             else {
                 return 1;
@@ -126,7 +166,7 @@ led_t *GetBoard1Led(void){
 
 void TestLeds(void){
     
-    SetLedState(&led_board_1, flash);
+    SetLedState(&led_board_1, on);
     SetLedColor(&led_board_1, red);
     osDelay(1000);
     SetLedColor(&led_board_1, green);
@@ -137,9 +177,13 @@ void TestLeds(void){
     osDelay(1000);
     SetLedState(&led_board_1, on);
     osDelay(1000);
-    SetLedColor(&led_board_1, green);
-    osDelay(1000);
+    SetLedState(&led_board_1, flash);
+    osDelay(5000);
     SetLedColor(&led_board_1, red);
+    osDelay(5000);
+    SetLedColor(&led_board_1, green);
+    osDelay(5000);
+
 }
 
 uint8_t PressS1(void){

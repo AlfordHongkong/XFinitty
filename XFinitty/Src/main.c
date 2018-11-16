@@ -59,6 +59,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 I2C_HandleTypeDef hi2c1;
 
@@ -78,6 +79,7 @@ osTimerId S1DelayHandle;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
@@ -125,6 +127,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
@@ -254,12 +257,12 @@ static void MX_ADC1_Init(void)
     /**Common config 
     */
   hadc1.Instance = ADC1;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 1;
+  hadc1.Init.NbrOfConversion = 4;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -269,7 +272,34 @@ static void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure Regular Channel 
+    */
+  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure Regular Channel 
+    */
+  sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+  sConfig.Rank = ADC_REGULAR_RANK_3;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure Regular Channel 
+    */
+  sConfig.Channel = ADC_CHANNEL_VREFINT;
+  sConfig.Rank = ADC_REGULAR_RANK_4;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -354,6 +384,21 @@ static void MX_USART3_UART_Init(void)
 
 }
 
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
+}
+
 /** Configure pins as 
         * Analog 
         * Input 
@@ -373,12 +418,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, BOARD_1_LED_R_Pin|BORAD_1_LED_B_Pin|BOARD_2_LED_R_Pin|BOARD_2_LED_B_Pin 
-                          |RELAY_6_Pin|RELAY_7_Pin|RELAY_5_Pin|RELAY_4_Pin 
-                          |RELAY_3_Pin|RELAY_2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, BOARD_1_LED_R_Pin|BORAD_1_LED_B_Pin|BOARD_2_LED_R_Pin|BOARD_2_LED_B_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LD2_Pin|RELAY_1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, RELAY_6_Pin|RELAY_7_Pin|RELAY_5_Pin|RELAY_4_Pin 
+                          |RELAY_3_Pin|RELAY_2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, RELAY_8_Pin|RELAY_9_Pin, GPIO_PIN_RESET);
@@ -389,10 +436,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : BOARD_1_LED_R_Pin BORAD_1_LED_B_Pin BOARD_2_LED_R_Pin BOARD_2_LED_B_Pin */
-  GPIO_InitStruct.Pin = BOARD_1_LED_R_Pin|BORAD_1_LED_B_Pin|BOARD_2_LED_R_Pin|BOARD_2_LED_B_Pin;
+  /*Configure GPIO pins : BOARD_1_LED_R_Pin BORAD_1_LED_B_Pin BOARD_2_LED_R_Pin BOARD_2_LED_B_Pin 
+                           RELAY_6_Pin RELAY_7_Pin RELAY_5_Pin RELAY_4_Pin 
+                           RELAY_3_Pin RELAY_2_Pin */
+  GPIO_InitStruct.Pin = BOARD_1_LED_R_Pin|BORAD_1_LED_B_Pin|BOARD_2_LED_R_Pin|BOARD_2_LED_B_Pin 
+                          |RELAY_6_Pin|RELAY_7_Pin|RELAY_5_Pin|RELAY_4_Pin 
+                          |RELAY_3_Pin|RELAY_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
@@ -402,15 +453,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : RELAY_6_Pin RELAY_7_Pin RELAY_5_Pin RELAY_4_Pin 
-                           RELAY_3_Pin RELAY_2_Pin */
-  GPIO_InitStruct.Pin = RELAY_6_Pin|RELAY_7_Pin|RELAY_5_Pin|RELAY_4_Pin 
-                          |RELAY_3_Pin|RELAY_2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : RELAY_8_Pin RELAY_9_Pin */
   GPIO_InitStruct.Pin = RELAY_8_Pin|RELAY_9_Pin;
@@ -449,8 +491,10 @@ void StartDefaultTask(void const * argument)
   HAL_UART_Receive_IT(&huart2, &temp2, 1);
   HAL_UART_Receive_IT(&huart3, &temp3, 1);
 
-  TurnOnLed(BOARD_1_LED_R);
-  TurnOnLed(BORAD_1_LED_B);
+//  TurnOnLed(BOARD_1_LED_R);
+//  TurnOnLed(BORAD_1_LED_B);
+//  TurnOnLed(BOARD_2_LED_B);
+//  TurnOnLed(BOARD_2_LED_R);
   
   // TurnOnled(BOARD_2_LED_B);
   // TurnOnled(BOARD_2_LED_R);
@@ -460,7 +504,7 @@ void StartDefaultTask(void const * argument)
 //    HAL_UART_Receive_IT();
     //PressS1();
     TestLeds();
-    osDelay(2000);
+    // osDelay(2000);
   }
   /* USER CODE END 5 */ 
 }
