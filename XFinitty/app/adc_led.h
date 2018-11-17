@@ -9,6 +9,9 @@
 #include "cmsis_os.h"
 
 
+void InitAdcLed(void);
+
+uint8_t WriteAdcData(void);
 #endif
 
 

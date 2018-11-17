@@ -380,7 +380,7 @@ void TestSequence(void){
         /// start fecth light data
     osDelay(4000);
         /// stop fetch and start analyze. led1 fhash 3 times and then off.
-    reset();
+    Reset();
     osDelay(1000); /// simulate human manipulation.
 
     /// step 6: charging --> led1 breathing state

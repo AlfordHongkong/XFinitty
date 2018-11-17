@@ -56,6 +56,7 @@
 #include "xfinitty.h"
 #include "bsp.h"
 #include "tsl2561.h"
+#include "adc_led.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -72,6 +73,7 @@ DMA_HandleTypeDef hdma_usart1_tx;
 osThreadId defaultTaskHandle;
 osThreadId GetLightTaskHandle;
 osThreadId PrintfTaskHandle;
+osThreadId GetAdcTaskHandle;
 osTimerId LedFlashingHandle;
 osTimerId S1DelayHandle;
 
@@ -92,6 +94,7 @@ static void MX_USART3_UART_Init(void);
 void StartDefaultTask(void const * argument);
 void StartGetLightTask(void const * argument);
 void StartPrintfTask(void const * argument);
+void StartGetAdcTask(void const * argument);
 void LedFlashingCallbac(void const * argument);
 void S1DelayCallback(void const * argument);
 
@@ -176,6 +179,10 @@ int main(void)
   /* definition and creation of PrintfTask */
   osThreadDef(PrintfTask, StartPrintfTask, osPriorityIdle, 0, 128);
   PrintfTaskHandle = osThreadCreate(osThread(PrintfTask), NULL);
+
+  /* definition and creation of GetAdcTask */
+  osThreadDef(GetAdcTask, StartGetAdcTask, osPriorityNormal, 0, 128);
+  GetAdcTaskHandle = osThreadCreate(osThread(GetAdcTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -502,9 +509,10 @@ void StartDefaultTask(void const * argument)
   led_t *led_board1;
   led_board1 = GetBoard1Led();
   uint8_t temp2, temp3;
-	InitUT61C();
+  InitUT61C();
   InitLeds();
   InitTSL2561();
+  InitAdcLed();
 	printf("System start.\n");
   HAL_UART_Receive_IT(&huart2, &temp2, 1);
   HAL_UART_Receive_IT(&huart3, &temp3, 1);
@@ -523,7 +531,7 @@ void StartDefaultTask(void const * argument)
 //    HAL_UART_Receive_IT();
     // PressS1();
 //    TestLeds();
-	  TestSequence();
+//	  TestSequence();
 
     // TestTSL2561();
     // GetHighByteLight();
@@ -562,6 +570,21 @@ void StartPrintfTask(void const * argument)
     osDelay(1000);
   }
   /* USER CODE END StartPrintfTask */
+}
+
+/* StartGetAdcTask function */
+void StartGetAdcTask(void const * argument)
+{
+  /* USER CODE BEGIN StartGetAdcTask */
+  uint32_t PreviousWakeTime = osKernelSysTick();
+  /* Infinite loop */
+  for(;;)
+  {
+    /// get adc data
+    // WriteAdcData();
+    osDelayUntil(&PreviousWakeTime, 500);
+  }
+  /* USER CODE END StartGetAdcTask */
 }
 
 /* LedFlashingCallbac function */
