@@ -13,3 +13,6 @@ extern DMA_HandleTypeDef hdma_adc1;
 //    HAL_ADC_Start_DMA(&hadc1, adcLedBuf[], 4);
 //
 //}
+
+//HAL_ADC_GetValue();
+//HAL_ADC_Start_IT();

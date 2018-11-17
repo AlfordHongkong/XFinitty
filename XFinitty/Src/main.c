@@ -55,6 +55,7 @@
 #include "ut61c.h"
 #include "xfinitty.h"
 #include "bsp.h"
+#include "tsl2561.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -487,6 +488,7 @@ void StartDefaultTask(void const * argument)
   uint8_t temp2, temp3;
 	InitUT61C();
   InitLeds();
+  InitTSL2561();
 	printf("System start.\n");
   HAL_UART_Receive_IT(&huart2, &temp2, 1);
   HAL_UART_Receive_IT(&huart3, &temp3, 1);
@@ -505,8 +507,11 @@ void StartDefaultTask(void const * argument)
 //    HAL_UART_Receive_IT();
     // PressS1();
 //    TestLeds();
-	  TestSequence();
-    //  osDelay(2000);
+	  // TestSequence();
+
+    TestTSL2561();
+    // GetHighByteLight();
+     osDelay(500);
   }
   /* USER CODE END 5 */ 
 }

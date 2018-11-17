@@ -297,6 +297,10 @@ uint8_t StepSixCharging(void){
 	return 0;
 }
 
+void ResumeRelays(void){
+
+}
+
 uint8_t StepSevenChargingHighTemp(void){
     /// powr an dresistance check.    3.06v and 10k
 
@@ -313,8 +317,9 @@ uint8_t StepSevenChargingHighTemp(void){
 
 uint8_t SetpEightEnd(void){
     /// reset and show the result
-
-
+	ChangeResistance(resistance_10k);
+	ChangePower(power_4v1);
+	ChangeMeter(ma_meter);
 
 	return 0;
 }
@@ -331,21 +336,26 @@ void TestSequence(void){
     /// step 2: s3 == on --> led1 on; led2 on
     PressS1();
     osDelay(5000);
+    PressS1();
+    osDelay(5000);
 
     /// step 3: res == 2.7k --> led 2 from on to off; led 1 flash 6times and off
     ChangeResistance(resistance_2k7);
+    osDelay(1000);
     PressS1();
     osDelay(5000);
     ChangeResistance(resistance_10k);
+    osDelay(1000);
 
     /// step 4: stanby current test
     ChangeMeter(ua_meter);
     osDelay(5000);
     ChangeMeter(ma_meter);
+    osDelay(1000);
 
     /// step 5: bow battery --> led1 flash 3 tiems then off.
     ChangePower(power_3v3);
-    osDelay(2000);
+    osDelay(1000);
     PressS1();
     osDelay(5000);
 
@@ -363,4 +373,6 @@ void TestSequence(void){
     ChangeResistance(resistance_10k);
     ChangePower(power_4v1);
     ChangeMeter(ma_meter);
+
+    osDelay(5000);
 }
