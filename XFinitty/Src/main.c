@@ -523,11 +523,11 @@ void StartDefaultTask(void const * argument)
 //    HAL_UART_Receive_IT();
     // PressS1();
 //    TestLeds();
-	  // TestSequence();
+	  TestSequence();
 
     // TestTSL2561();
     // GetHighByteLight();
-     osDelay(100);
+     osDelay(1000);
   }
   /* USER CODE END 5 */ 
 }

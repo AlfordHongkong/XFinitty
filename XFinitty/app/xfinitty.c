@@ -324,55 +324,87 @@ uint8_t SetpEightEnd(void){
 	return 0;
 }
 
-
-
-void TestSequence(void){
-
-
-    /// step 1: s3 == off
-    PressS1();
-    osDelay(5000);
-
-    /// step 2: s3 == on --> led1 on; led2 on
-    PressS1();
-    osDelay(5000);
-    PressS1();
-    osDelay(5000);
-
-    /// step 3: res == 2.7k --> led 2 from on to off; led 1 flash 6times and off
-    ChangeResistance(resistance_2k7);
-    osDelay(1000);
-    PressS1();
-    osDelay(5000);
-    ChangeResistance(resistance_10k);
-    osDelay(1000);
-
-    /// step 4: stanby current test
-    ChangeMeter(ua_meter);
-    osDelay(5000);
-    ChangeMeter(ma_meter);
-    osDelay(1000);
-
-    /// step 5: bow battery --> led1 flash 3 tiems then off.
-    ChangePower(power_3v3);
-    osDelay(1000);
-    PressS1();
-    osDelay(5000);
-
-    /// step 6: charging --> led1 breathing state
-    ChangePower(power_3v06);
-    osDelay(5000);
-
-    /// step 7: high temp with charging --> led flahes rapidly 6times/s
-    ChangeResistance(resistance_3k85);
-    osDelay(5000);
-    /// step 8: done
-
-
-    /// reset
+void Reset(void){
     ChangeResistance(resistance_10k);
     ChangePower(power_4v1);
     ChangeMeter(ma_meter);
+    osDelay(100);
+}
 
+
+void TestSequence(void){
+    
+    /// step 1: led1 and led2 should be off
+        /// wait for pcba powering off
+
+    PressS1();
+        /// start fetch light data
+    osDelay(4000);
+        /// stop fetch light data and analyze this 3 scconds data, should be 000...000
+        /// led2 should be off
+    /// step 2: s3 == on --> led1 on; led2 on
+    PressS1();
+        /// start fetch light data
+    osDelay(3000);
+        /// stop fetch light data and analyze this 3 scconds data, should be 00..000 24,24 24 24 ...24
+        /// led2 should be on
+    PressS1();
+        /// star fetch light data 
+    osDelay(3000);
+        /// stop fetch light data and analyze this 3 scconds data, should be 24 24 24 ...24 24 000...000
+        /// led2 should be off
+
+    /// step 3: HIGH TEMP TEST  res == 2.7k --> led 2 from on to off; led 1 flash 6times and off
+    ChangeResistance(resistance_2k7);
+    osDelay(100); ///< RELAY DELAY
+    PressS1();
+        /// start fetch light data and led2 data
+    osDelay(4000);
+        /// stop fetch data and start to analyze. led2 light on and then light off, led3 flash 6times and then off
+    Reset();
+    osDelay(1000); /// simulate human manipulation.
+
+    /// step 4: stanby current test
+    ChangeMeter(ua_meter);
+    osDelay(100); /// for relay delay
+        /// start to fetch data
     osDelay(5000);
+        /// stop fetching and start analyzing
+    Reset();
+    osDelay(1000); /// simulate human manipulation.
+
+    /// step 5: bow battery --> led1 flash 3 tiems then off.
+    ChangePower(power_3v3);
+    osDelay(100); /// for relay delay
+    PressS1();
+        /// start fecth light data
+    osDelay(4000);
+        /// stop fetch and start analyze. led1 fhash 3 times and then off.
+    reset();
+    osDelay(1000); /// simulate human manipulation.
+
+    /// step 6: charging --> led1 breathing state
+    ChangePower(power_3v06);
+    osDelay(100);   /// for relay delay
+        /// start fetch data
+    osDelay(4000);
+        /// stop fetch and analyze breathing signal
+    Reset();
+    osDelay(1000); /// simulate human manipulation.
+
+    /// step 7: high temp with charging --> led flahes rapidly 6times/s
+    ChangePower(power_3v06);
+    osDelay(100); /// for relay delay
+    osDelay(1000); /// simulate human manipulation
+    ChangeResistance(resistance_3k85);
+    osDelay(100); /// for relay delay
+        /// start fetch data
+    osDelay(4000);  
+        /// stop fetch and start analyze
+    Reset();
+    osDelay(1000); /// simulate human manipulation.
+
+    /// step 8: done
+        /// wait for pcba power off
+
 }
