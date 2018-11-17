@@ -102,15 +102,22 @@ uint8_t WriteLight(void){
     uint16_t light = 0;
     uint8_t light8 = 0;
     GetLightBytes(&light);
-    light8 = (uint8_t)(light / 10);
-    if( WriteCircularBuf(&light_cb, light8) != error_buffer_full)
+    light /= 3;
+    if (light > 255) {
+        light8 = 255;
+    }
+    else {
+        light8 = (uint8_t)(light);
+    }
+    
+    if( WriteCircularBuf(&light_cb, light8) == error_buffer_full)
         return 1;
 
     return 0;
 }
 
 uint8_t ReadLight(uint8_t *light){
-    if (ReadCircularBuf(&light_cb, light) != error_buffer_empty)
+    if (ReadCircularBuf(&light_cb, light) == error_buffer_empty)
         return 1;
 
     return 0;
@@ -152,29 +159,20 @@ extern UART_HandleTypeDef huart1;
 
 void TestTSL2561(void){
 
-    // uint8_t readingDate[16] = { 0, 0, 0, 0, \
-    //                             0, 0, 0, 0, \
-    //                             0, 0, 0, 0, \
-    //                             0, 0, 0, 0};
+    uint8_t readingDate[16] = { 0, 0, 0, 0, \
+                                0, 0, 0, 0, \
+                                0, 0, 0, 0, \
+                                0, 0, 0, 0};
     // PowerUpTSL2561();
     // SetIntegrateTime4TSL2561(0);
-    // GetAllRegisterOfTSL2561(readingDate, 16);
+    GetAllRegisterOfTSL2561(readingDate, 16);
     // PowerDownTSL2561();
     // SetIntegrateTime4TSL2561(0x02);
-    // GetAllRegisterOfTSL2561(readingDate, 16);
+    GetAllRegisterOfTSL2561(readingDate, 16);
 
-    uint16_t light = 0;
-    GetLightBytes(&light);
+    // uint16_t light = 0;
+    // GetLightBytes(&light);
 
-    uint8_t lightDataArray[7];
-    lightDataArray[0] = light / 10000 + '0';
-    lightDataArray[1] = light % 10000 / 1000 + '0';
-    lightDataArray[2] = light % 1000 / 100 + '0';
-    lightDataArray[3] = light % 100 / 10 + '0';
-    lightDataArray[4] = light % 10 + '0';
-    lightDataArray[5] = 0x0a;
-    lightDataArray[6] = 0x0d;
-    HAL_UART_Transmit_IT(&huart1, lightDataArray, 7);
     //printf("%d\n", light);
     
 }

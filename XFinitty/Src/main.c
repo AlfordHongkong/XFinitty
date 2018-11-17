@@ -525,7 +525,7 @@ void StartDefaultTask(void const * argument)
 //    TestLeds();
 	  // TestSequence();
 
-    TestTSL2561();
+    // TestTSL2561();
     // GetHighByteLight();
      osDelay(100);
   }
@@ -550,10 +550,15 @@ void StartGetLightTask(void const * argument)
 void StartPrintfTask(void const * argument)
 {
   /* USER CODE BEGIN StartPrintfTask */
+  uint8_t light = 0;
   /* Infinite loop */
   for(;;)
   {
-    ClearAllLightData();
+    // ClearAllLightData();
+    while (ReadLight(&light) == 0){
+      printf("%d  ", light);
+    }
+    printf("\n");
     osDelay(1000);
   }
   /* USER CODE END StartPrintfTask */
