@@ -511,7 +511,7 @@ void StartDefaultTask(void const * argument)
 
     TestTSL2561();
     // GetHighByteLight();
-     osDelay(500);
+     osDelay(100);
   }
   /* USER CODE END 5 */ 
 }

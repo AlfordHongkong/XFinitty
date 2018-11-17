@@ -75,6 +75,22 @@ uint8_t GetHighByteLight(void){
     return 0;
 }
 
+uint8_t GetLightBytes(uint16_t *light){
+    uint8_t command = 0x8C; ///< the addresses of DATA0LOW and DATA0HIGH are Ch & Dh
+    uint8_t lightBytes[2] = {0, 0};
+    if (HAL_I2C_Master_Transmit_IT(&hi2c1, ADDR_TSL2561, &command, 1) != HAL_OK)
+        return 0;
+    /// waite a acknowledge
+    while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY){}
+    /// receive data
+    if (HAL_I2C_Master_Receive_IT(&hi2c1, ADDR_TSL2561, lightBytes, 2) != HAL_OK)
+        return 0;
+    while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY){}
+    *light = lightBytes[1] * 256 + lightBytes[0];
+
+    return 0;
+}
+
 uint8_t GetAllRegisterOfTSL2561(uint8_t *array, uint8_t array_size){
     if (array_size < 16) {
         return 1;
@@ -97,20 +113,28 @@ uint8_t GetAllRegisterOfTSL2561(uint8_t *array, uint8_t array_size){
 
 
 
+
+
 void TestTSL2561(void){
 
-    uint8_t readingDate[16] = { 0, 0, 0, 0, \
-                                0, 0, 0, 0, \
-                                0, 0, 0, 0, \
-                                0, 0, 0, 0};
+    // uint8_t readingDate[16] = { 0, 0, 0, 0, \
+    //                             0, 0, 0, 0, \
+    //                             0, 0, 0, 0, \
+    //                             0, 0, 0, 0};
     // PowerUpTSL2561();
     // SetIntegrateTime4TSL2561(0);
     // GetAllRegisterOfTSL2561(readingDate, 16);
     // PowerDownTSL2561();
     // SetIntegrateTime4TSL2561(0x02);
-    GetAllRegisterOfTSL2561(readingDate, 16);
+    // GetAllRegisterOfTSL2561(readingDate, 16);
+
+    uint16_t light = 0;
+    GetLightBytes(&light);
+    printf("light data: %d \n", light);
     
 }
+
+
 
 void ScanSensorData(void){
 
