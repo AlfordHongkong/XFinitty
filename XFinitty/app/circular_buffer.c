@@ -23,6 +23,10 @@ uint8_t InitCircularBuf(circularBuffer_t *cb, uint8_t buf[], uint8_t buf_size){
     cb->read = 0;
     cb->write = 0;
 
+    for (int i=0; i<buf_size; i++){
+        buf[i] = 0;
+    }
+
     return 0;
 }
 

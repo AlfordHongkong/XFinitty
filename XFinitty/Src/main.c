@@ -67,8 +67,11 @@ I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
+DMA_HandleTypeDef hdma_usart1_tx;
 
 osThreadId defaultTaskHandle;
+osThreadId GetLightTaskHandle;
+osThreadId PrintfTaskHandle;
 osTimerId LedFlashingHandle;
 osTimerId S1DelayHandle;
 
@@ -87,6 +90,8 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 void StartDefaultTask(void const * argument);
+void StartGetLightTask(void const * argument);
+void StartPrintfTask(void const * argument);
 void LedFlashingCallbac(void const * argument);
 void S1DelayCallback(void const * argument);
 
@@ -163,6 +168,14 @@ int main(void)
   /* definition and creation of defaultTask */
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+  /* definition and creation of GetLightTask */
+  osThreadDef(GetLightTask, StartGetLightTask, osPriorityNormal, 0, 128);
+  GetLightTaskHandle = osThreadCreate(osThread(GetLightTask), NULL);
+
+  /* definition and creation of PrintfTask */
+  osThreadDef(PrintfTask, StartPrintfTask, osPriorityIdle, 0, 128);
+  PrintfTaskHandle = osThreadCreate(osThread(PrintfTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -397,6 +410,9 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+  /* DMA1_Channel4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
 
 }
 
@@ -514,6 +530,33 @@ void StartDefaultTask(void const * argument)
      osDelay(100);
   }
   /* USER CODE END 5 */ 
+}
+
+/* StartGetLightTask function */
+void StartGetLightTask(void const * argument)
+{
+  /* USER CODE BEGIN StartGetLightTask */
+  uint32_t PreviousWakeTime = osKernelSysTick();
+  /* Infinite loop */
+  for(;;)
+  {
+    WriteLight();
+    osDelayUntil(&PreviousWakeTime, 50);
+  }
+  /* USER CODE END StartGetLightTask */
+}
+
+/* StartPrintfTask function */
+void StartPrintfTask(void const * argument)
+{
+  /* USER CODE BEGIN StartPrintfTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    ClearAllLightData();
+    osDelay(1000);
+  }
+  /* USER CODE END StartPrintfTask */
 }
 
 /* LedFlashingCallbac function */

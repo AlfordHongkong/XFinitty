@@ -72,6 +72,5 @@ circular_buf_error_t ReadCircularBuf(circularBuffer_t *cb, uint8_t *data);
  */
 circular_buf_error_t WriteCircularBuf(circularBuffer_t *cb, uint8_t data);
 
-
 #endif
 

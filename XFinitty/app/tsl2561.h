@@ -52,5 +52,28 @@ uint8_t GetHighByteLight(void);
  */
 void TestTSL2561(void);
 
+
+/**
+ * @brief get a light data and write it to buffer
+ * 
+ * @return uint8_t - 0 means return success
+ */
+uint8_t WriteLight(void);
+
+/**
+ * @brief read a light data from buffer.
+ * 
+ * @param light - the data pass to light
+ * @return uint8_t - 0 means return success
+ */
+uint8_t ReadLight(uint8_t *light);
+
+/**
+ * @brief clear all light data in the buffer
+ * 
+ * @return uint8_t - 0 means return success
+ */
+uint8_t ClearAllLightData(void);
+
 #endif
 
