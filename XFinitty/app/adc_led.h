@@ -11,7 +11,15 @@
 
 void InitAdcLed(void);
 
+/**
+ * @brief start converting adc
+ * 
+ * @return uint8_t 
+ */
 uint8_t WriteAdcData(void);
+
+uint8_t ReadAdcData(uint8_t which_channel, uint8_t *data);
+
 #endif
 
 

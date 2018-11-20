@@ -143,7 +143,16 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  led_t *led_board1;
+  led_board1 = GetBoard1Led();
+  uint8_t temp2, temp3;
+  InitUT61C();
+  InitLeds();
+  InitTSL2561();
+  InitAdcLed();
+	printf("System start.\n");
+  HAL_UART_Receive_IT(&huart2, &temp2, 1);
+  HAL_UART_Receive_IT(&huart3, &temp3, 1);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -279,7 +288,7 @@ static void MX_ADC1_Init(void)
     */
   hadc1.Instance = ADC1;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
@@ -506,16 +515,7 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN 5 */
-  led_t *led_board1;
-  led_board1 = GetBoard1Led();
-  uint8_t temp2, temp3;
-  InitUT61C();
-  InitLeds();
-  InitTSL2561();
-  InitAdcLed();
-	printf("System start.\n");
-  HAL_UART_Receive_IT(&huart2, &temp2, 1);
-  HAL_UART_Receive_IT(&huart3, &temp3, 1);
+  
 
 //  TurnOnLed(BOARD_1_LED_R);
 //  TurnOnLed(BORAD_1_LED_B);
@@ -559,13 +559,31 @@ void StartPrintfTask(void const * argument)
 {
   /* USER CODE BEGIN StartPrintfTask */
   uint8_t light = 0;
+  uint8_t value_adc = 0;
   /* Infinite loop */
   for(;;)
   {
     // ClearAllLightData();
-    while (ReadLight(&light) == 0){
-      printf("%d  ", light);
+    printf("Channel 0: ");
+    while (ReadAdcData(0, &value_adc) == 0){
+      printf("%d  ", value_adc);
     }
+    printf("\n");
+    printf("Channel 1: ");
+    while (ReadAdcData(1, &value_adc) == 0){
+      printf("%d  ", value_adc);
+    }
+    printf("\n");
+    printf("t  sensor: ");
+    while (ReadAdcData(2, &value_adc) == 0){
+      printf("%d  ", value_adc);
+    }
+    printf("\n");
+    printf("vrefint  : ");
+    while (ReadAdcData(3, &value_adc) == 0){
+      printf("%d  ", value_adc);
+    }
+    printf("\n");
     printf("\n");
     osDelay(1000);
   }
@@ -581,8 +599,8 @@ void StartGetAdcTask(void const * argument)
   for(;;)
   {
     /// get adc data
-    // WriteAdcData();
-    osDelayUntil(&PreviousWakeTime, 500);
+    WriteAdcData();
+    osDelayUntil(&PreviousWakeTime, 100);
   }
   /* USER CODE END StartGetAdcTask */
 }
