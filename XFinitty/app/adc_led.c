@@ -1,19 +1,29 @@
-
-
+/**
+ * @file adc_led.c
+ * @author Rock Deng (dengyongpeng110@outlook.com)
+ * @brief 
+ * @version 0.1
+ * @date 2018-11-20
+ * 
+ * @copyright Copyright (c) 2018
+ * 
+ */
 
 #include "adc_led.h"
 #include "bsp.h"
-#include "circular_buffer.h"
 
 
 extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_adc1;
+
+__IO static uint8_t flag_enable_acd_test;
 
 //__io uint16_t adcLedBuf[4];
 
 
 #define ADC_BUFFER_SIZE 64
 #define CHANNEL_NUM 4
+
 
 __IO uint16_t adcConvertedValues[CHANNEL_NUM];
 
@@ -26,10 +36,31 @@ circularBuffer_t channel0_cb;
 circularBuffer_t temp_sersor_cb;
 circularBuffer_t vrefint_cb;
 
+
+circularBuffer_t *GetLedMinusCB(void){
+    return &channel0_cb;
+}
+
+circularBuffer_t *GetLedPlusCB(void){
+    return &channel1_cb;
+}
+
+
 void ResetAdcConvertedValues(void){
     for (int i=0; i<4; i++){
         adcConvertedValues[i] = 0;
     }
+}
+
+void EnableAdcFetching(void){
+    /// first, clean all adc data
+    CleanAllAdcBuffer();
+    flag_enable_acd_test = 1;
+}
+
+void DisableAdcFetching(void){
+    flag_enable_acd_test = 0;
+
 }
 
 void InitAdcLed(void){
@@ -39,10 +70,10 @@ void InitAdcLed(void){
    InitCircularBuf(&channel1_cb, channel1_buffer, ADC_BUFFER_SIZE);
    InitCircularBuf(&temp_sersor_cb, temp_sensor_buffer, ADC_BUFFER_SIZE);
    InitCircularBuf(&vrefint_cb, vrefint_buffer, ADC_BUFFER_SIZE);
+
+   flag_enable_acd_test = 0;
     /// 
-    ActRelay(2);
-    ActRelay(8);
-    HAL_Delay(100);  ///< for relay delay
+ 
 
     /// adc calibration
     if (HAL_ADCEx_Calibration_Start(&hadc1) != HAL_OK){
@@ -54,18 +85,21 @@ void InitAdcLed(void){
     }
 }
 
+
+
 uint8_t WriteAdcData(void){
 
-    /// 
-    // HAL_ADC_Start_IT(&hadc1);
-    // __HAL_ADC_ENABLE_IT(&hadc1, ADC_IT_EOC);
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcConvertedValues, 4);
-    // HAL_ADC_Start_IT(&hadc1);
-
-    
+    if (flag_enable_acd_test == 1){
+        // HAL_ADC_Start_IT(&hadc1);
+        // __HAL_ADC_ENABLE_IT(&hadc1, ADC_IT_EOC);
+        HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcConvertedValues, 4);
+        // HAL_ADC_Start_IT(&hadc1);
+    }
 
     return 0;
 }
+
+
 
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
@@ -109,9 +143,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
     ResetAdcConvertedValues();
 }
 
-void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc){
-    while(1);
-}
+// void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc){
+//     while(1);
+// }
 
 uint8_t ReadAdcData(uint8_t which_channel, uint8_t *value_adc){
 
@@ -142,4 +176,16 @@ uint8_t ReadAdcData(uint8_t which_channel, uint8_t *value_adc){
     }
 
     return 0;
+}
+
+void CleanAllAdcBuffer(void){
+    uint8_t value_adc;
+    while (ReadCircularBuf(&channel0_cb, &value_adc) == 0){}
+    while (ReadCircularBuf(&channel1_cb, &value_adc) == 0){}
+    while (ReadCircularBuf(&temp_sersor_cb, &value_adc) == 0){}
+    while (ReadCircularBuf(&vrefint_cb, &value_adc) == 0){}
+}
+
+void TestAdc(void){
+       
 }

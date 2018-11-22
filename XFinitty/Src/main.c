@@ -57,6 +57,8 @@
 #include "bsp.h"
 #include "tsl2561.h"
 #include "adc_led.h"
+#include "indicator.h"
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -69,6 +71,8 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 DMA_HandleTypeDef hdma_usart1_tx;
+DMA_HandleTypeDef hdma_usart2_tx;
+DMA_HandleTypeDef hdma_usart3_tx;
 
 osThreadId defaultTaskHandle;
 osThreadId GetLightTaskHandle;
@@ -143,16 +147,22 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-  led_t *led_board1;
-  led_board1 = GetBoard1Led();
+//  led_t *led_board1;
+//  led_board1 = GetBoard1Led();
   uint8_t temp2, temp3;
+  InitXFinitty();
   InitUT61C();
   InitLeds();
   InitTSL2561();
   InitAdcLed();
-	printf("System start.\n");
+  printf("System start.\n");
   HAL_UART_Receive_IT(&huart2, &temp2, 1);
   HAL_UART_Receive_IT(&huart3, &temp3, 1);
+
+  uint8_t sendingData[] = "uart2";
+  HAL_UART_Transmit_DMA(&huart2, sendingData, 6);
+  uint8_t sendingData2[] = "uart3";
+  HAL_UART_Transmit(&huart3, sendingData2, 6, 0xffffffff);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -178,7 +188,7 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityLow, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of GetLightTask */
@@ -186,7 +196,7 @@ int main(void)
   GetLightTaskHandle = osThreadCreate(osThread(GetLightTask), NULL);
 
   /* definition and creation of PrintfTask */
-  osThreadDef(PrintfTask, StartPrintfTask, osPriorityIdle, 0, 128);
+  osThreadDef(PrintfTask, StartPrintfTask, osPriorityNormal, 0, 128);
   PrintfTaskHandle = osThreadCreate(osThread(PrintfTask), NULL);
 
   /* definition and creation of GetAdcTask */
@@ -426,9 +436,15 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+  /* DMA1_Channel2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
   /* DMA1_Channel4_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+  /* DMA1_Channel7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
 
 }
 
@@ -515,27 +531,21 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN 5 */
-  
-
-//  TurnOnLed(BOARD_1_LED_R);
-//  TurnOnLed(BORAD_1_LED_B);
-//  TurnOnLed(BOARD_2_LED_B);
-//  TurnOnLed(BOARD_2_LED_R);
-  
-  // TurnOnled(BOARD_2_LED_B);
-  // TurnOnled(BOARD_2_LED_R);
+  // EnableAdcFetching();
+  // EnableLedMinusTest();
   /* Infinite loop */
   for(;;)
   {
     // TestRelay();
 //    HAL_UART_Receive_IT();
     // PressS1();
-//    TestLeds();
-//	  TestSequence();
+  //  TestLeds();
+	  // TestSequence();
 
     // TestTSL2561();
     // GetHighByteLight();
-     osDelay(1000);
+    // TestUT61();
+    //  osDelay(1000);
   }
   /* USER CODE END 5 */ 
 }
@@ -548,7 +558,8 @@ void StartGetLightTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    WriteLight();
+    if (isEnableFetchingLight())
+      WriteLight();
     osDelayUntil(&PreviousWakeTime, 50);
   }
   /* USER CODE END StartGetLightTask */
@@ -558,33 +569,33 @@ void StartGetLightTask(void const * argument)
 void StartPrintfTask(void const * argument)
 {
   /* USER CODE BEGIN StartPrintfTask */
-  uint8_t light = 0;
-  uint8_t value_adc = 0;
+//  uint8_t light = 0;
+//  uint8_t value_adc = 0;
   /* Infinite loop */
   for(;;)
   {
     // ClearAllLightData();
-    printf("Channel 0: ");
-    while (ReadAdcData(0, &value_adc) == 0){
-      printf("%d  ", value_adc);
-    }
-    printf("\n");
-    printf("Channel 1: ");
-    while (ReadAdcData(1, &value_adc) == 0){
-      printf("%d  ", value_adc);
-    }
-    printf("\n");
-    printf("t  sensor: ");
-    while (ReadAdcData(2, &value_adc) == 0){
-      printf("%d  ", value_adc);
-    }
-    printf("\n");
-    printf("vrefint  : ");
-    while (ReadAdcData(3, &value_adc) == 0){
-      printf("%d  ", value_adc);
-    }
-    printf("\n");
-    printf("\n");
+    // printf("Channel 0: ");
+    // while (ReadAdcData(0, &value_adc) == 0){
+    //   printf("%d  ", value_adc);
+    // }
+    // printf("\n");
+    // printf("Channel 1: ");
+    // while (ReadAdcData(1, &value_adc) == 0){
+    //   printf("%d  ", value_adc);
+    // }
+    // printf("\n");
+    // printf("t  sensor: ");
+    // while (ReadAdcData(2, &value_adc) == 0){
+    //   printf("%d  ", value_adc);
+    // }
+    // printf("\n");
+    // printf("vrefint  : ");
+    // while (ReadAdcData(3, &value_adc) == 0){
+    //   printf("%d  ", value_adc);
+    // }
+    // printf("\n");
+    // printf("\n");
     osDelay(1000);
   }
   /* USER CODE END StartPrintfTask */
@@ -609,7 +620,7 @@ void StartGetAdcTask(void const * argument)
 void LedFlashingCallbac(void const * argument)
 {
   /* USER CODE BEGIN LedFlashingCallbac */
-  CallbackForLedFlashing();
+  CallbackForLed1Flashing();
   /* USER CODE END LedFlashingCallbac */
 }
 

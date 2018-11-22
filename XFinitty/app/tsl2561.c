@@ -3,7 +3,7 @@
 
 
 #include "tsl2561.h"
-#include "circular_buffer.h"
+
 
 extern I2C_HandleTypeDef hi2c1;
 
@@ -18,6 +18,10 @@ extern I2C_HandleTypeDef hi2c1;
 circularBuffer_t light_cb;
 uint8_t light_cb_array[LIGHT_BUFFER_SIZE];
 
+
+circularBuffer_t *GetLightCB(void){
+    return &light_cb;
+}
 
 void InitTSL2561(void){
     PowerUpTSL2561();

@@ -72,5 +72,15 @@ circular_buf_error_t ReadCircularBuf(circularBuffer_t *cb, uint8_t *data);
  */
 circular_buf_error_t WriteCircularBuf(circularBuffer_t *cb, uint8_t data);
 
+
+/**
+ * @brief clean all item in the buffer cb
+ * 
+ * @param cb - buffer to be clean
+ * @return uint8_t - 0 means return sucess
+ */
+uint8_t CleanCircularBuffer(circularBuffer_t *cb);
+
+
 #endif
 

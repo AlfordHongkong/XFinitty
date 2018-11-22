@@ -48,3 +48,14 @@ circular_buf_error_t ReadCircularBuf(circularBuffer_t *cb, uint8_t *data){
 
     return no_error;
 }
+
+uint8_t CleanCircularBuffer(circularBuffer_t *cb){
+    uint8_t data;
+    while (ReadCircularBuf(cb, &data) == no_error){
+
+    }
+
+    return 0;
+}
+
+

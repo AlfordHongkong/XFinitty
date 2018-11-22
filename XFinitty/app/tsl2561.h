@@ -7,6 +7,7 @@
 #include "main.h"
 #include "stm32f1xx_hal.h"
 #include "cmsis_os.h"
+#include "circular_buffer.h"
 
 
 /**
@@ -74,6 +75,8 @@ uint8_t ReadLight(uint8_t *light);
  * @return uint8_t - 0 means return success
  */
 uint8_t ClearAllLightData(void);
+
+circularBuffer_t *GetLightCB(void);
 
 #endif
 
