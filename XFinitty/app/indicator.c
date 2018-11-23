@@ -38,47 +38,6 @@ void InitLeds(void){
 }
 
 
-// uint8_t TurnOnLed(which_led_t led ){
-//     led_t *led;
-//     if (led = led_1){
-//         led = &led_board_1;
-//         switch (led_board_1.color){
-//         case orange:
-//             TurnOnLed(BOARD_1_LED_R);
-//             TurnOnLed(BORAD_1_LED_B);
-//         break;
-//         case red:
-//             TurnOnLed(BOARD_1_LED_R);
-//             TurnOffLed(BORAD_1_LED_B);
-//         break;
-//         case green:
-//             TurnOnLed(BORAD_1_LED_B);
-//             TurnOffLed(BOARD_1_LED_R);
-//         break;
-
-//         default:
-//         break;
-//     }
-//     }
-//     else if (led = led_2){
-//         led = &led_board_2;
-//     }
-//     else {
-//         return 1;
-//     }
-
-
-    
-//     // led_board_1.state = on;
-// }
-
-// void TurnOffBoard1Led(void){
-    
-//     TurnOffLed(BOARD_1_LED_R);
-//     TurnOffLed(BORAD_1_LED_B);
-
-//     // led_board_1.state = off;
-// }
 
 void FlashToOff(which_led_t led){
     if (led == led_1){

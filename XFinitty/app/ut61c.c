@@ -1,4 +1,13 @@
-
+/**
+ * @file ut61c.c
+ * @author Rock Deng(dengyongpeng110@outlook.com)
+ * @brief 
+ * @version 0.1
+ * @date 2018-11-22
+ * 
+ * @copyright Copyright (c) 2018
+ * 
+ */
 
 
 #include "ut61c.h"
@@ -40,13 +49,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
    if (huart->Instance == UA_UART){
        HAL_UART_Receive_IT(&huart2, &temp2, 1);
        WriteCircularBuf(&uAmeter_cb, temp2);
-       HAL_UART_Transmit_IT(&huart2, &temp2, 1);
+    //    HAL_UART_Transmit_IT(&huart2, &temp2, 1);
    
    }
    else if (huart->Instance == MA_UART){
        HAL_UART_Receive_IT(&huart3, &temp3, 1);
        WriteCircularBuf(&mAmeter_cb, temp3);
-       HAL_UART_Transmit_IT(&huart3, &temp3, 1);
+    //    HAL_UART_Transmit_IT(&huart3, &temp3, 1);
    }
    else{
 

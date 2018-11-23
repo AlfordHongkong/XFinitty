@@ -159,10 +159,10 @@ int main(void)
   HAL_UART_Receive_IT(&huart2, &temp2, 1);
   HAL_UART_Receive_IT(&huart3, &temp3, 1);
 
-  uint8_t sendingData[] = "uart2";
-  HAL_UART_Transmit_DMA(&huart2, sendingData, 6);
-  uint8_t sendingData2[] = "uart3";
-  HAL_UART_Transmit(&huart3, sendingData2, 6, 0xffffffff);
+  // uint8_t sendingData[] = "uart2";
+  // HAL_UART_Transmit_DMA(&huart2, sendingData, 6);
+  // uint8_t sendingData2[] = "uart3";
+  // HAL_UART_Transmit(&huart3, sendingData2, 6, 0xffffffff);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -540,7 +540,7 @@ void StartDefaultTask(void const * argument)
 //    HAL_UART_Receive_IT();
     // PressS1();
   //  TestLeds();
-	  // TestSequence();
+	  TestSequence();
 
     // TestTSL2561();
     // GetHighByteLight();
