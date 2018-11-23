@@ -166,8 +166,9 @@ uint8_t AnalyzeUAData(void){
                 && (NumberCheck(ow_ring_buf.buf[2]) == 0)
                 && (NumberCheck(ow_ring_buf.buf[3]) == 0)
                 && (ow_ring_buf.buf[4] = ' ')
-                && (ow_ring_buf.buf[8] = 0x80)
-                && (ow_ring_buf.buf[9] = 0x40)){
+//                && (ow_ring_buf.buf[8] = 0x80)
+//                && (ow_ring_buf.buf[9] = 0x40)
+				){
                 
                 current = ow_ring_buf.buf[0] * 1000 \
                           + ow_ring_buf.buf[1] * 100 \
@@ -218,8 +219,9 @@ multimeter_measure_error_t AnalyzeMAData(void){
                 && (NumberCheck(ow_ring_buf.buf[2]) == 0)
                 && (NumberCheck(ow_ring_buf.buf[3]) == 0)
                 && (ow_ring_buf.buf[4] = ' ')
-                && (ow_ring_buf.buf[8] = 0x80)
-                && (ow_ring_buf.buf[9] = 0x40)){
+//                && (ow_ring_buf.buf[8] = 0x80)
+//                && (ow_ring_buf.buf[9] = 0x40)
+				){
                 
                 current = ow_ring_buf.buf[0] * 1000 \
                           + ow_ring_buf.buf[1] * 100 \
