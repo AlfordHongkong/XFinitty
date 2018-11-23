@@ -189,3 +189,16 @@ void CleanAllAdcBuffer(void){
 void TestAdc(void){
        
 }
+
+
+uint8_t AnalyzeLed2(void){
+	uint8_t value_led_minus = 0;
+
+    printf(">>>>led_minus: \n");
+    while(ReadCircularBuf(GetLedMinusCB(), &value_led_minus) == 0){
+        
+        printf("%d  ", value_led_minus);
+    }
+
+    return 0;
+}

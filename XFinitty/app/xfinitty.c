@@ -9,6 +9,7 @@
 #include "main.h"
 #include "tsl2561.h"
 #include "line_analyze.h"
+#include "ut61c.h"
 
 
 extern osTimerId S1DelayHandle;
@@ -53,8 +54,8 @@ uint8_t DisableFetchingLight(void){
 
 uint8_t StepOnePowerDown(void){
     uint8_t value_led_plus = 0;
-    uint8_t value_led_minus = 0;
-    uint8_t value_light = 0;
+//    uint8_t value_led_minus = 0;
+//    uint8_t value_light = 0;
     uint8_t read_adc_state = 0;
     light_signal_t light_signal;
     printf("Step 1: \n");
@@ -92,10 +93,7 @@ uint8_t StepOnePowerDown(void){
     DisableLedMinusTest();
     DisableAdcFetching();
     DisableFetchingLight();
-    printf(">>>>led_minus: ");
-    while(ReadCircularBuf(GetLedMinusCB(), &value_led_minus) == 0){
-        printf("  %d", value_led_minus);
-    }
+    
     
 
     AnalyzeLightData(GetLightCB(), &light_signal);
@@ -106,8 +104,8 @@ uint8_t StepOnePowerDown(void){
 
 uint8_t StepTwoPowerUp(void){
     uint8_t value_led_plus = 0;
-    uint8_t value_led_minus = 0;
-    uint8_t value_light = 0;
+//    uint8_t value_led_minus = 0;
+//    uint8_t value_light = 0;
     uint8_t read_adc_state = 0;
     light_signal_t light_signal;
     printf("Step 2: led1 on-->off; led2 on-->off; current<0.575A\n");
@@ -118,7 +116,7 @@ uint8_t StepTwoPowerUp(void){
     SetLedColor(led_1, led_orange);
     SetLedState(led_1, led_flash);
     printf(">>wait power-on...\n");
-    printf(">>>>value_led_plus: ");
+    printf(">>>>value_led_plus: \n");
     read_adc_state = ReadAdcData(1, &value_led_plus);
     while ( (read_adc_state != 0) || value_led_plus < LED_PLUS_shreshold){
         if (read_adc_state == 0) { ///< read success
@@ -144,16 +142,18 @@ uint8_t StepTwoPowerUp(void){
     EnableLedMinusTest();
     EnableAdcFetching();
     EnableFetchingLight();
-    osDelay(5000);   ///< delay 5s for data fetching
+    osDelay(2000);
+    EnableFetchingMA();
+    osDelay(3000);   ///< delay 5s for data fetching
     DisableLedMinusTest();
     DisableAdcFetching();
     DisableFetchingLight();
-    printf(">>>>led_minus: ");
-    while(ReadCircularBuf(GetLedMinusCB(), &value_led_minus) == 0){
-        printf("  %d", value_led_minus);
-    }
+    DisableFetchingMA();
     
+
+    AnalyzeLed2();
     AnalyzeLightData(GetLightCB(), &light_signal);
+    AnalyzeMAData();
     
         /// then, press s1 again. led1 and led2 should be off
     PressS1();
@@ -165,12 +165,10 @@ uint8_t StepTwoPowerUp(void){
     DisableLedMinusTest();
     DisableAdcFetching();
     DisableFetchingLight();
-    printf(">>>>led_minus: ");
-    while(ReadCircularBuf(GetLedMinusCB(), &value_led_minus) == 0){
-        printf("  %d", value_led_minus);
-    }
 
+    AnalyzeLed2();
     AnalyzeLightData(GetLightCB(), &light_signal);
+    AnalyzeUAData();
 
     printf("\n\n\n");
 
@@ -179,8 +177,8 @@ uint8_t StepTwoPowerUp(void){
 
 uint8_t StepThreeHignTemp(void){
 //    uint8_t value_led_plus = 0;
-    uint8_t value_led_minus = 0;
-    uint8_t value_light = 0;
+//    uint8_t value_led_minus = 0;
+//    uint8_t value_light = 0;
 //    uint8_t read_adc_state = 0;
     light_signal_t light_signal;
     /// power and resistan check
@@ -201,11 +199,8 @@ uint8_t StepThreeHignTemp(void){
     DisableLedMinusTest();
     DisableAdcFetching();
     DisableFetchingLight();
-    printf(">>>>led_minus: ");
-    while(ReadCircularBuf(GetLedMinusCB(), &value_led_minus) == 0){
-        printf("  %d", value_led_minus);
-    }
-    
+
+    AnalyzeLed2();
     AnalyzeLightData(GetLightCB(), &light_signal);
 
     printf("\n\n\n");
@@ -224,7 +219,11 @@ uint8_t StepFourStandbyCurrent(void){
     ChangeMeter(ua_meter);
     osDelay(3000); ///< delay for system stable
     /// get standby current, is should be < 4uA
+    EnableFetchingUA();
+    osDelay(3000);
+    DisableFetchingUA();
 
+    AnalyzeUAData();
     
 
     printf("\n\n\n");
@@ -236,7 +235,7 @@ uint8_t StepFourStandbyCurrent(void){
 uint8_t StepFiveLowBattery(void){
 //	uint8_t value_led_plus = 0;
 //	uint8_t value_led_minus = 0;
-	uint8_t value_light = 0;
+//	uint8_t value_light = 0;
 //	uint8_t read_adc_state = 0;
     light_signal_t light_signal;
     /// power and resistan check
@@ -269,7 +268,7 @@ uint8_t StepFiveLowBattery(void){
 uint8_t StepSixCharging(void){
 //	uint8_t value_led_plus = 0;
 //	uint8_t value_led_minus = 0;
-	uint8_t value_light = 0;
+//	uint8_t value_light = 0;
 //	uint8_t read_adc_state = 0;
     light_signal_t light_signal;
 
@@ -284,11 +283,13 @@ uint8_t StepSixCharging(void){
     osDelay(3000); ///< delay for system statle
     /// led1 flashes in the breathing state and the current should be 88-279mA.
     EnableFetchingLight();
+    EnableFetchingMA();
     osDelay(5000); ///< delay for data fetching
     DisableFetchingLight();
+    DisableFetchingMA();
     
     AnalyzeLightData(GetLightCB(), &light_signal);
-
+    AnalyzeMAData();
     Reset();
     printf("\n\n\n");
 
@@ -300,7 +301,7 @@ uint8_t StepSixCharging(void){
 uint8_t StepSevenChargingHighTemp(void){
 //	uint8_t value_led_plus = 0;
 //	uint8_t value_led_minus = 0;
-	uint8_t value_light = 0;
+//	uint8_t value_light = 0;
 //	uint8_t read_adc_state = 0;
     light_signal_t light_signal;
 
@@ -321,7 +322,7 @@ uint8_t StepSevenChargingHighTemp(void){
     DisableFetchingLight();
     
     AnalyzeLightData(GetLightCB(), &light_signal);
-    
+
     Reset();
     printf("\n\n\n");
 
@@ -357,7 +358,7 @@ void TestSequence(void){
     // osDelay(4000);
     //     /// stop fetch light data and analyze this 3 scconds data, should be 000...000
     //     /// led2 should be off
-    StepOnePowerDown();
+//    StepOnePowerDown();
 
 
     // /// step 2: s3 == on --> led1 on; led2 on
@@ -383,7 +384,7 @@ void TestSequence(void){
     //     /// stop fetch data and start to analyze. led2 light on and then light off, led3 flash 6times and then off
     // Reset();
     // osDelay(1000); /// simulate human manipulation.
-    StepThreeHignTemp();
+    // StepThreeHignTemp();
 
 
     // /// step 4: stanby current test

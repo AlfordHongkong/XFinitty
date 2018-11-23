@@ -56,7 +56,7 @@ uint8_t AnalyzeLightData(circularBuffer_t *buff, light_signal_t *light_signal){
     uint8_t sum_count = 0;
     line_direction_t direction = up;
     
-    printf("\n>>>>light:  ");
+    printf("\n>>>>light:  \n");
     while (ReadCircularBuf(buff, &new_data) == no_error){
         if (direction == up){
             if (new_data < last_data){
@@ -75,7 +75,7 @@ uint8_t AnalyzeLightData(circularBuffer_t *buff, light_signal_t *light_signal){
         }
         
         last_data = new_data;
-        printf("  %d", new_data);  ///< output every data
+        printf("%d  ", new_data);  ///< output every data
     }
     sum_count = line_type.zero_count + \
                 line_type.up_count + \
@@ -105,7 +105,7 @@ uint8_t AnalyzeLightData(circularBuffer_t *buff, light_signal_t *light_signal){
     }
 
     /// output line type
-    printf("\n>>>>up count: %d \n>>>>down count: %d \n>>>>zero count: %d \n", 
+    printf("\n    up count: %d \n    down count: %d \n    zero count: %d \n", 
             line_type.up_count, line_type.down_count, line_type.zero_count);
     /// output light signal type
     PrintLightSignal(*light_signal);
@@ -116,16 +116,16 @@ uint8_t AnalyzeLightData(circularBuffer_t *buff, light_signal_t *light_signal){
 
 
 static uint8_t PrintLightSignal(light_signal_t light_signal){
-    printf("**** led1: ");
+    printf("    result->led1: ");
     switch (light_signal){
         case light_off:
         printf("off\n");
         break;
         case light_off_then_on:
-        printf("off on\n");
+        printf("off->on\n");
         break;
         case light_on_then_off:
-        printf("on off\n");
+        printf("on->off\n");
         break;
         case blink_3times_then_off:
         printf("blink 3times\n");

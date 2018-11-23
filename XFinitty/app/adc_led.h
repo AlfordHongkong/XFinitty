@@ -68,6 +68,8 @@ void CleanAllAdcBuffer(void);
 circularBuffer_t *GetLedMinusCB(void);
 circularBuffer_t *GetLedPlusCB(void);
 
+uint8_t AnalyzeLed2(void);
+
 #endif
 
 

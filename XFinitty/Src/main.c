@@ -71,8 +71,8 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 DMA_HandleTypeDef hdma_usart1_tx;
-DMA_HandleTypeDef hdma_usart2_tx;
-DMA_HandleTypeDef hdma_usart3_tx;
+DMA_HandleTypeDef hdma_usart2_rx;
+DMA_HandleTypeDef hdma_usart3_rx;
 
 osThreadId defaultTaskHandle;
 osThreadId GetLightTaskHandle;
@@ -149,15 +149,15 @@ int main(void)
   /* USER CODE BEGIN 2 */
 //  led_t *led_board1;
 //  led_board1 = GetBoard1Led();
-  uint8_t temp2, temp3;
+//  uint8_t temp2, temp3;
   InitXFinitty();
   InitUT61C();
   InitLeds();
   InitTSL2561();
   InitAdcLed();
   printf("System start.\n");
-  HAL_UART_Receive_IT(&huart2, &temp2, 1);
-  HAL_UART_Receive_IT(&huart3, &temp3, 1);
+  // HAL_UART_Receive_IT(&huart2, &temp2, 1);
+  // HAL_UART_Receive_IT(&huart3, &temp3, 1);
 
   // uint8_t sendingData[] = "uart2";
   // HAL_UART_Transmit_DMA(&huart2, sendingData, 6);
@@ -434,17 +434,17 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 8, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  /* DMA1_Channel2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+  /* DMA1_Channel3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
   /* DMA1_Channel4_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 8, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
-  /* DMA1_Channel7_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
+  /* DMA1_Channel6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
 
 }
 
@@ -545,7 +545,7 @@ void StartDefaultTask(void const * argument)
     // TestTSL2561();
     // GetHighByteLight();
     // TestUT61();
-    //  osDelay(1000);
+    //  osDelay(5000);
   }
   /* USER CODE END 5 */ 
 }
@@ -558,8 +558,10 @@ void StartGetLightTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    if (isEnableFetchingLight())
+    if (isEnableFetchingLight()){
       WriteLight();
+    }
+    
     osDelayUntil(&PreviousWakeTime, 50);
   }
   /* USER CODE END StartGetLightTask */

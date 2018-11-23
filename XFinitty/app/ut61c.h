@@ -28,6 +28,20 @@ circularBuffer_t *GetuACircularBuffer(void);
 circularBuffer_t *GetmACircularBuffer(void);
 
 
+uint8_t EnableFetchingUA(void);
+
+uint8_t DisableFetchingUA(void);
+
+uint8_t EnableFetchingMA(void);
+
+uint8_t DisableFetchingMA(void);
+
+
+
+uint8_t AnalyzeUAData(void);
+
+
+uint8_t AnalyzeMAData(void);
 
 /**
  * @brief UT61C test
